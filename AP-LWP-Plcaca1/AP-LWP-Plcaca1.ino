@@ -68,6 +68,8 @@ void setup() {
   pinMode(trigg_pin2, OUTPUT);
   pinMode(pot_pin2, INPUT);
 
+  mqttClient.setServer(brokerUrl.c_str(), port);
+  mqttClient.setCallback(callbackMQTT);
   connectToWiFi();
   connectToBroker();
 }
@@ -96,8 +98,6 @@ void loop() {
     valordist1 = lerDistanciaUltrassonico1();
     Serial.println("");
     Serial.printf("Distância: %d cm\n", valordist1);
-    
-
   }
 
   // Leitura ultrassonico2
@@ -106,8 +106,6 @@ void loop() {
     valordist2 = lerDistanciaUltrassonico2();
     Serial.println("");
     Serial.printf("Distância: %d cm\n", valordist2);
-    
-
   }
 
   // Envia para o broker
@@ -155,52 +153,54 @@ void connectToBroker() {
   String userId = "ESP-LWP";
   userId += String(random(0xfff), HEX);
   while (!mqttClient.connected()) {
-    mqttClient.connect(userId.c_str());
     Serial.print(".");
-    delay(500);
-
-    // MUDAR TOPICO
-    mqttClient.subscribe("duplaLWP/acesso/alerta");
-    mqttClient.setCallback(callback);
-  }
-  Serial.println("\nConectado com sucesso!");
-}
-
-// recebe resposta
-void callback(char* topic, byte* payload, unsigned long length) {
-  String resposta = "";
-  for (int i = 0; i < length; i++) {
-    resposta += (char)payload[i];
+    if (mqttClient.connect(userId.c_str(), "", "", LWTTopic, LWTQoS, LWTRetain, LWTMessage)) {
+      Serial.println("\nConectado ao broker MQTT!");
+      mqttClient.subscribe(placa1Topic.c_str());
+      mqttClient.publish(placa1Topic.c_str(), "online", LWTRetain);
+    }
+    Serial.println("\nConectado com sucesso!");
   }
 
-  Serial.println(resposta);
-}
+  // recebe resposta
+  void callback(char* topic, byte* payload, unsigned long length) {
+    String msg = "";
+
+    for (int i = 0; i < length; i++) msg += (char)payload[i];
+    Serial.print("\nTópico recebido: ");
+    Serial.println(topic);
+    Serial.print("Mensagem: ");
+    Serial.println(msg);
 
 
-// Le a dist do ultrassonico1
-int lerDistanciaUltrassonico1() {
-  digitalWrite(trigg_pin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigg_pin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigg_pin, LOW);
+    Serial.println(resposta);
+  }
 
-  unsigned long duracao1 = pulseIn(echo_pin, HIGH, 20000);
-  if (duracao1 == 0) return -1;
-  int distancia1 = duracao1 * 0.0343 / 2;
-  return distancia1;
-}
 
-// Le a dist do ultrassonico2
-int lerDistanciaUltrassonico2() {
-  digitalWrite(trigg_pin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigg_pin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigg_pin, LOW);
+  // Le a dist do ultrassonico1
+  int lerDistanciaUltrassonico1() {
+    digitalWrite(trigg_pin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigg_pin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigg_pin, LOW);
 
-  unsigned long duracao2 = pulseIn(echo_pin, HIGH, 20000);
-  if (duracao2 == 0) return -1;
-  int distancia2 = duracao2 * 0.0343 / 2;
-  return distancia2;
-}
+    unsigned long duracao1 = pulseIn(echo_pin, HIGH, 20000);
+    if (duracao1 == 0) return -1;
+    int distancia1 = duracao1 * 0.0343 / 2;
+    return distancia1;
+  }
+
+  // Le a dist do ultrassonico2
+  int lerDistanciaUltrassonico2() {
+    digitalWrite(trigg_pin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigg_pin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigg_pin, LOW);
+
+    unsigned long duracao2 = pulseIn(echo_pin, HIGH, 20000);
+    if (duracao2 == 0) return -1;
+    int distancia2 = duracao2 * 0.0343 / 2;
+    return distancia2;
+  }
