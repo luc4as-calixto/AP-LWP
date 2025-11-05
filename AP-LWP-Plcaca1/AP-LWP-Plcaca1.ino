@@ -53,7 +53,7 @@ void connectToWiFi();
 void connectToBroker();
 void callback(char* topic, byte* payload, unsigned long length);
 int lerDistanciaUltrassonico1();
-
+int lerDistanciaUltrassonico2();
 
 // =============- JSON -============
 JsonDocument doc;
@@ -103,7 +103,7 @@ void loop() {
   // Leitura ultrassonico2
   if (agora - ultimoTempoDis12 >= intervaloDist2) {
     ultimoTempoDis2t = agora;
-    valordist2 = lerDistanciaUltrassonico1();
+    valordist2 = lerDistanciaUltrassonico2();
     Serial.println("");
     Serial.printf("Distância: %d cm\n", valordist2);
     
@@ -185,8 +185,22 @@ int lerDistanciaUltrassonico1() {
   delayMicroseconds(10);
   digitalWrite(trigg_pin, LOW);
 
-  unsigned long duracao = pulseIn(echo_pin, HIGH, 20000);
-  if (duracao == 0) return -1;
-  int distancia = duracao * 0.0343 / 2;
-  return distancia;
+  unsigned long duracao1 = pulseIn(echo_pin, HIGH, 20000);
+  if (duracao1 == 0) return -1;
+  int distancia1 = duracao1 * 0.0343 / 2;
+  return distancia1;
+}
+
+// Le a dist do ultrassonico2
+int lerDistanciaUltrassonico2() {
+  digitalWrite(trigg_pin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigg_pin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigg_pin, LOW);
+
+  unsigned long duracao2 = pulseIn(echo_pin, HIGH, 20000);
+  if (duracao2 == 0) return -1;
+  int distancia2 = duracao2 * 0.0343 / 2;
+  return distancia2;
 }
