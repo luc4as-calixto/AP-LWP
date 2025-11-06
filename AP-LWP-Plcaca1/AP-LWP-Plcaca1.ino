@@ -1,206 +1,167 @@
-// placa1 para sensoriamento (ocupação, temperatura e umidade);
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <ArduinoJson.h>
+#include <Ultrasonic.h>
 
-// ==========- Variaveis -==========
-unsigned long ultimoTempoDist1 = 0;
-const long intervaloDist1 = 1000;
-unsigned long ultimoTempoDist2 = 0;
-const long intervaloDist2 = 1000;
-int valordist1 = 0;
-int valordist2 = 0;
+// ======= CONFIGURAÇÕES DE REDE =======
+const char* ssid = "Redmi 8 do lucas";
+const char* password = "12345678";
 
-// ========- Fim Variaveis -========
+// ======= CONFIGURAÇÕES MQTT =======
+const char* mqtt_server = "test.mosquitto.org";
+const int mqtt_port = 1883;
+const char* mqtt_topic = "porta/status";
 
-// ============- pinos -============
-
-// Ultrassonico1
-// MUDAR OS PINOS DE ENTRADA
-const byte echo_pin1 = 1;
-const byte trigg_pin1 = 2;
-// Ultrassonico2
-const byte echo_pin2 = 3;
-const byte trigg_pin2 = 4;
-
-// ==========- Fim pinos -==========
-
-const byte pot_pin = 4;
-const byte echo_pin = 18;
-const byte trigg_pin = 9;
-
-// ======- Config WiFi e MQTT -=====
-const String SSID = "";
-const String PSWD = "";
-const String brokerUrl = "test.mosquitto.org";
-const int port = 1883;
-
-// =========- Config LWT -==========
-// Status placa1
-const char* LWTTopic = "Placa1/status";
-const char* LWTMessage = "offline";
-const int LWTQoS = 1;
-const bool LWTRetain = true;
-
-// =====- Topico da placa LWT -=====
-const String placa1Topic = "placa1/status";
-
-// ===========- Funções -===========
 WiFiClient espClient;
-PubSubClient mqttClient(espClient);
+PubSubClient client(espClient);
 
-void connectToWiFi();
-void connectToBroker();
-void callback(char* topic, byte* payload, unsigned long length);
-int lerDistanciaUltrassonico1();
-int lerDistanciaUltrassonico2();
+// ======= CONFIGURAÇÃO DOS SENSORES =======
+#define TRIG1 18
+#define ECHO1 19
+#define TRIG2 23
+#define ECHO2 22
 
-// =============- JSON -============
-JsonDocument doc;
+Ultrasonic sensor1(TRIG1, ECHO1);
+Ultrasonic sensor2(TRIG2, ECHO2);
 
+// ======= VARIÁVEIS DE CONTROLE =======
+const int LIMIAR_BASE = 85;   // cm (limite padrão)
+float limiarDinamico1 = LIMIAR_BASE;
+float limiarDinamico2 = LIMIAR_BASE;
+
+bool detectando = false;
+bool bloqueado = false;  // indica obstrução contínua
+unsigned long tempoObstrucao = 0;
+const unsigned long TEMPO_OBSTRUCAO = 1500; // 2 segundos
+
+String ordem[2] = {"", ""};
+unsigned long tempoInicial;
+const unsigned long TIMEOUT = 1500;
+
+// ======= FUNÇÕES DE CONEXÃO =======
+void conectarWiFi() {
+  Serial.print("Conectando-se ao WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\n✅ Conectado ao WiFi!");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void conectarMQTT() {
+  while (!client.connected()) {
+    Serial.print("Conectando ao MQTT...");
+    if (client.connect("ESP32C6_Portas")) {
+      Serial.println("✅ Conectado!");
+    } else {
+      Serial.print("Falhou, rc=");
+      Serial.print(client.state());
+      Serial.println(" Tentando novamente em 2s");
+      delay(2000);
+    }
+  }
+}
+
+// ======= CONFIGURAÇÃO INICIAL =======
 void setup() {
   Serial.begin(115200);
-
-  // Ultrassonico1
-  pinMode(trigg_pin1, OUTPUT);
-  pinMode(pot_pin1, INPUT);
-  // Ultrassonico2
-  pinMode(trigg_pin2, OUTPUT);
-  pinMode(pot_pin2, INPUT);
-
-  mqttClient.setServer(brokerUrl.c_str(), port);
-  mqttClient.setCallback(callbackMQTT);
-  connectToWiFi();
-  connectToBroker();
+  conectarWiFi();
+  client.setServer(mqtt_server, mqtt_port);
 }
 
+// ======= LOOP PRINCIPAL =======
 void loop() {
+  if (!client.connected()) conectarMQTT();
+  client.loop();
 
-  // Verifica conexão WiFi
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("\nConexão WiFi perdida");
-    connectToWiFi();
-  }
+  float d1 = sensor1.read();
+  float d2 = sensor2.read();
 
-  // Verifica conexão com broker
-  if (!mqttClient.connected()) {
-    Serial.println("\nConexão MQTT perdida");
-    connectToBroker();
-  }
+  if (d1 == 0) d1 = 400;
+  if (d2 == 0) d2 = 400;
 
+  Serial.print("Distância 1: ");
+  Serial.print(d1);
+  Serial.print(" cm | Distância 2: ");
+  Serial.print(d2);
+  Serial.print(" cm | Limiar1: ");
+  Serial.print(limiarDinamico1);
+  Serial.print(" | Limiar2: ");
+  Serial.println(limiarDinamico2);
 
-  agora = millis();
+  // ======= DETECÇÃO DE OBSTRUÇÃO CONTÍNUA =======
+  if (d1 < LIMIAR_BASE || d2 < LIMIAR_BASE) {
+    if (tempoObstrucao == 0) tempoObstrucao = millis();
 
+    // Se ficar obstruído por mais de 2s → define novo limiar dinâmico
+    if (millis() - tempoObstrucao > TEMPO_OBSTRUCAO && !bloqueado) {
+      bloqueado = true;
+      limiarDinamico1 = (d1 < LIMIAR_BASE) ? (d1 - 10) : LIMIAR_BASE;
+      limiarDinamico2 = (d2 < LIMIAR_BASE) ? (d2 - 10) : LIMIAR_BASE;
 
-  // Leitura ultrassonico1
-  if (agora - ultimoTempoDis1t >= intervaloDist1) {
-    ultimoTempoDist1 = agora;
-    valordist1 = lerDistanciaUltrassonico1();
-    Serial.println("");
-    Serial.printf("Distância: %d cm\n", valordist1);
-  }
+      // Impede limiar negativo
+      if (limiarDinamico1 < 10) limiarDinamico1 = 10;
+      if (limiarDinamico2 < 10) limiarDinamico2 = 10;
 
-  // Leitura ultrassonico2
-  if (agora - ultimoTempoDis12 >= intervaloDist2) {
-    ultimoTempoDis2t = agora;
-    valordist2 = lerDistanciaUltrassonico2();
-    Serial.println("");
-    Serial.printf("Distância: %d cm\n", valordist2);
-  }
-
-  // Envia para o broker
-  // DEPOIS APENAS COLOCAR QUE ENVIE DPS DE UM CERTO TEMPO
-  if (Serial.available() > 0) {
-    String info = "";
-
-    // PARA ENVIAR TIPO JSON
-    doc["nome"] = variavel;
-    serializeJson(doc, info);
-
-    message = Serial.readStringUntil('\n');
-    //{ "NOME": <VALOR>, "distancia": <valor> }
-
-    // envia mensagem
-    mqttClient.publish("duplaLWP/acesso/alerta", info.c_str());
-    delay(1000);
-  }
-
-  mqttClient.loop();
-}
-
-// Funções
-
-// Conexão WiFi
-void connectToWiFi() {
-  Serial.println("\nIniciando conexão com rede WiFi");
-  WiFi.begin(SSID, PSWD);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(200);
-  }
-  Serial.print("\nWi-Fi Conectado!");
-}
-
-// Conexão Broker
-void connectToBroker() {
-  // Verifica a conexão WiFi
-  if (WiFi.status() != WL_CONNECTED) {
-    return;
-  }
-  Serial.println("\nConectando ao broker");
-  mqttClient.setServer(brokerUrl.c_str(), port);
-  // USER
-  String userId = "ESP-LWP";
-  userId += String(random(0xfff), HEX);
-  while (!mqttClient.connected()) {
-    Serial.print(".");
-    if (mqttClient.connect(userId.c_str(), "", "", LWTTopic, LWTQoS, LWTRetain, LWTMessage)) {
-      Serial.println("\nConectado ao broker MQTT!");
-      mqttClient.subscribe(placa1Topic.c_str());
-      mqttClient.publish(placa1Topic.c_str(), "online", LWTRetain);
+      Serial.println("🚫 Caminho bloqueado — limite dinâmico ajustado");
+      Serial.print("Novo limite: ");
+      Serial.print(limiarDinamico1);
+      Serial.print(" / ");
+      Serial.println(limiarDinamico2);
     }
-    Serial.println("\nConectado com sucesso!");
+  } 
+  else {
+    tempoObstrucao = 0;
+
+    // Se estava bloqueado e agora liberou → restaura padrão
+    if (bloqueado && d1 > LIMIAR_BASE && d2 > LIMIAR_BASE) {
+      bloqueado = false;
+      limiarDinamico1 = LIMIAR_BASE;
+      limiarDinamico2 = LIMIAR_BASE;
+      Serial.println("✅ Caminho liberado — limiar padrão restaurado");
+    }
   }
 
-  // recebe resposta
-  void callback(char* topic, byte* payload, unsigned long length) {
-    String msg = "";
-
-    for (int i = 0; i < length; i++) msg += (char)payload[i];
-    Serial.print("\nTópico recebido: ");
-    Serial.println(topic);
-    Serial.print("Mensagem: ");
-    Serial.println(msg);
-
-
-    Serial.println(resposta);
+  // ===== DETECÇÃO DE PASSAGEM =====
+  if ((d1 < limiarDinamico1 || d2 < limiarDinamico2) && !detectando) {
+    detectando = true;
+    tempoInicial = millis();
+    ordem[0] = (d1 < limiarDinamico1) ? "sensor1" : "sensor2";
+    Serial.println("Detecção inicial: " + ordem[0]);
   }
 
-
-  // Le a dist do ultrassonico1
-  int lerDistanciaUltrassonico1() {
-    digitalWrite(trigg_pin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigg_pin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigg_pin, LOW);
-
-    unsigned long duracao1 = pulseIn(echo_pin, HIGH, 20000);
-    if (duracao1 == 0) return -1;
-    int distancia1 = duracao1 * 0.0343 / 2;
-    return distancia1;
+  if (detectando) {
+    if (d1 < limiarDinamico1 && ordem[0] != "sensor1" && ordem[1] == "") {
+      ordem[1] = "sensor1";
+      Serial.println("Segundo sensor: sensor1");
+    }
+    if (d2 < limiarDinamico2 && ordem[0] != "sensor2" && ordem[1] == "") {
+      ordem[1] = "sensor2";
+      Serial.println("Segundo sensor: sensor2");
+    }
   }
 
-  // Le a dist do ultrassonico2
-  int lerDistanciaUltrassonico2() {
-    digitalWrite(trigg_pin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigg_pin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigg_pin, LOW);
+  // ===== AVALIAÇÃO FINAL =====
+  if (detectando && (ordem[1] != "" || millis() - tempoInicial > TIMEOUT)) {
+    if (ordem[0] == "sensor1" && ordem[1] == "sensor2") {
+      Serial.println("➡️ Entrada detectada!");
+      client.publish(mqtt_topic, "entrada");
+      delay(1000);
+    } else if (ordem[0] == "sensor2" && ordem[1] == "sensor1") {
+      Serial.println("⬅️ Saída detectada!");
+      client.publish(mqtt_topic, "saida");
+      delay(1000);
+    } else {
+      Serial.println("⚠️ Detecção inválida ou incompleta");
+    }
 
-    unsigned long duracao2 = pulseIn(echo_pin, HIGH, 20000);
-    if (duracao2 == 0) return -1;
-    int distancia2 = duracao2 * 0.0343 / 2;
-    return distancia2;
+    detectando = false;
+    ordem[0] = "";
+    ordem[1] = "";
+    delay(800);
   }
+
+  delay(50);
+}
