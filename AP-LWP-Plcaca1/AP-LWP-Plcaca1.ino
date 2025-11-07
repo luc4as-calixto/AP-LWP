@@ -79,22 +79,48 @@ void connectToWiFi() {
 
 // Conexão Broker
 void connectToBroker() {
-  if (WiFi.status() != WL_CONNECTED) {
-    return;
-  }
-  Serial.println("\nConectando ao broker");
+  if (WiFi.status() != WL_CONNECTED) return;
+
   mqttClient.setServer(mqtt_server, mqtt_port);
-  String userId = "ESP-CALIXTO";
-  userId += String(random(0xfff), HEX);
+
+  // ID único da placa
+  String userId = "ESP-PLACA1-";
+  userId += String(random(0xFFF), HEX);
+
+  Serial.println("\nConectando ao broker MQTT...");
+
   while (!mqttClient.connected()) {
-    mqttClient.connect(userId.c_str());
     Serial.print(".");
-    delay(500);
-    mqttClient.subscribe(mqtt_topic);
-    mqttClient.setCallback(callback);
+
+    // Tenta conectar com LWT (Last Will and Testament)
+    if (mqttClient.connect(
+          userId.c_str(),
+          nullptr, nullptr,        
+          LWTTopic,            
+          LWTQoS,                 
+          LWTRetain,  
+          LWTMessage 
+        )) 
+    {
+      Serial.println("\n✅ Conectado ao broker MQTT!");
+      
+      // Publica o status online
+      mqttClient.publish(LWTTopic, "online", LWTRetain);
+
+      // Inscreve no tópico da própria placa
+      mqttClient.subscribe(mqtt_topic);
+
+      // Define o callback
+      mqttClient.setCallback(callback);
+    } else {
+      Serial.print("❌ Falha (rc=");
+      Serial.print(mqttClient.state());
+      Serial.println(") — Tentando novamente em 2s...");
+      delay(2000);
+    }
   }
-  Serial.println("\nConectado com sucesso!");
 }
+
 
 // recebe resposta
 void callback(char* topic, byte* payload, unsigned long length) {
@@ -199,10 +225,10 @@ void loop() {
 
     if (ordem[0] == "sensor1" && ordem[1] == "sensor2") {
       Serial.println("➡️ Entrada detectada!");
-      doc["tipo"] = "entrada";
+      doc["evento"] = "entrada";
     } else if (ordem[0] == "sensor2" && ordem[1] == "sensor1") {
       Serial.println("⬅️ Saída detectada!");
-      doc["tipo"] = "saida";
+      doc["evento"] = "saida";
     } else {
       Serial.println("⚠️ Detecção inválida ou incompleta");
       detectando = false;
