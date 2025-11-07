@@ -1,10 +1,11 @@
 // placa1 para sensoriamento (ocupação);
+// =========- bibliotecas -=========
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <Ultrasonic.h>
+#include <ArduinoJson.h>
 
 // ==========- Variaveis -==========
-
 const int LIMIAR_BASE = 85;  // cm (limite padrão)
 float limiarDinamico1 = LIMIAR_BASE;
 float limiarDinamico2 = LIMIAR_BASE;
@@ -12,7 +13,7 @@ float limiarDinamico2 = LIMIAR_BASE;
 bool detectando = false;
 bool bloqueado = false;  // indica obstrução contínua
 unsigned long tempoObstrucao = 0;
-const unsigned long TEMPO_OBSTRUCAO = 1500;  // 2 segundos
+const unsigned long TEMPO_OBSTRUCAO = 1000;  // 1 segundos
 
 String ordem[2] = { "", "" };
 unsigned long tempoInicial;
@@ -21,14 +22,14 @@ const unsigned long TIMEOUT = 1500;
 // ========- Fim Variaveis -========
 
 // ============- pinos -============
-
 // Ultrassonico1
-#define TRIG1 18
-#define ECHO1 19
+#define TRIG1 19
+#define ECHO1 18
 
 // Ultrassonico2
 #define TRIG2 23
 #define ECHO2 22
+
 
 Ultrasonic sensor1(TRIG1, ECHO1);
 Ultrasonic sensor2(TRIG2, ECHO2);
@@ -41,7 +42,8 @@ const char* password = "12345678";
 
 const char* mqtt_server = "test.mosquitto.org";
 const int mqtt_port = 1883;
-const char* mqtt_topic = "porta/status";
+// Topic: envia a deteccao
+const char* mqtt_topic = "placa1/deteccao/LWP";
 
 // =========- Config LWT -==========
 // Status placa1
@@ -56,13 +58,10 @@ const String placa1Topic = "placa1/status";
 // ===========- Funções -===========
 
 WiFiClient espClient;
-PubSubClient client(espClient);
+PubSubClient mqttClient(espClient);
 
 void connectToWiFi();
 void connectToBroker();
-
-// =============- JSON -============
-JsonDocument doc;
 
 // ======= FUNÇÕES DE CONEXÃO =======
 // Conexão WiFi
@@ -80,46 +79,53 @@ void connectToWiFi() {
 
 // Conexão Broker
 void connectToBroker() {
-  while (!client.connected()) {
-    Serial.print("Conectando ao MQTT...");
-    if (client.connect("ESP32C6_Portas")) {
-      Serial.println("✅ Conectado!");
-    } else {
-      Serial.print("Falhou, rc=");
-      Serial.print(client.state());
-      Serial.println(" Tentando novamente em 2s");
-      delay(2000);
-    }
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
   }
+  Serial.println("\nConectando ao broker");
+  mqttClient.setServer(mqtt_server, mqtt_port);
+  String userId = "ESP-CALIXTO";
+  userId += String(random(0xfff), HEX);
+  while (!mqttClient.connected()) {
+    mqttClient.connect(userId.c_str());
+    Serial.print(".");
+    delay(500);
+    mqttClient.subscribe(mqtt_topic);
+    mqttClient.setCallback(callback);
+  }
+  Serial.println("\nConectado com sucesso!");
 }
 
 // recebe resposta
 void callback(char* topic, byte* payload, unsigned long length) {
-  String msg = "";
+  String resposta = "";
+  for (unsigned int i = 0; i < length; i++) {
+    resposta += (char)payload[i];
+  }
 
-  for (int i = 0; i < length; i++) msg += (char)payload[i];
-  Serial.print("\nTópico recebido: ");
-  Serial.println(topic);
-  Serial.print("Mensagem: ");
-  Serial.println(msg);
+  Serial.print("Mensagem recebida [");
+  Serial.print(topic);
+  Serial.print("]: ");
+  Serial.println(resposta);
 }
 
 // ======= CONFIGURAÇÃO INICIAL =======
 void setup() {
   Serial.begin(115200);
 
-  mqttClient.setServer(brokerUrl.c_str(), port);
-  mqttClient.setCallback(callbackMQTT);
-
   connectToWiFi();
-  client.setServer(mqtt_server, mqtt_port);
+
+  mqttClient.setServer(mqtt_server, mqtt_port);
+  mqttClient.setCallback(callback);
 }
+
 
 // ======= LOOP PRINCIPAL =======
 void loop() {
-  if (!client.connected()) connectToBroker();
-  client.loop();
+  if (!mqttClient.connected()) connectToBroker();
+  mqttClient.loop();
 
+  // leitura dos sensores
   float d1 = sensor1.read();
   float d2 = sensor2.read();
 
@@ -139,7 +145,7 @@ void loop() {
   if (d1 < LIMIAR_BASE || d2 < LIMIAR_BASE) {
     if (tempoObstrucao == 0) tempoObstrucao = millis();
 
-    // Se ficar obstruído por mais de 2s → define novo limiar dinâmico
+    // Se ficar obstruído por mais de 1s → define novo limiar dinâmico
     if (millis() - tempoObstrucao > TEMPO_OBSTRUCAO && !bloqueado) {
       bloqueado = true;
       limiarDinamico1 = (d1 < LIMIAR_BASE) ? (d1 - 10) : LIMIAR_BASE;
@@ -188,23 +194,41 @@ void loop() {
 
   // ===== AVALIAÇÃO FINAL =====
   if (detectando && (ordem[1] != "" || millis() - tempoInicial > TIMEOUT)) {
+    StaticJsonDocument<200> doc;
+    String info;
+
     if (ordem[0] == "sensor1" && ordem[1] == "sensor2") {
       Serial.println("➡️ Entrada detectada!");
-      client.publish(mqtt_topic, "entrada");
-      delay(1000);
+      doc["tipo"] = "entrada";
     } else if (ordem[0] == "sensor2" && ordem[1] == "sensor1") {
       Serial.println("⬅️ Saída detectada!");
-      client.publish(mqtt_topic, "saida");
-      delay(1000);
+      doc["tipo"] = "saida";
     } else {
       Serial.println("⚠️ Detecção inválida ou incompleta");
+      detectando = false;
+      ordem[0] = "";
+      ordem[1] = "";
+      delay(800);
+      return;  // sai sem enviar nada
     }
 
+    doc["timestamp"] = millis();
+
+    // converte JSON para string
+    serializeJson(doc, info);
+
+    // publica no MQTT
+    mqttClient.publish(mqtt_topic, info.c_str());
+
+    // debug no serial
+    Serial.print("📤 JSON enviado: ");
+    Serial.println(info);
+
+    // limpa estado
     detectando = false;
     ordem[0] = "";
     ordem[1] = "";
     delay(800);
+    delay(500);
   }
-
-  delay(50);
 }
