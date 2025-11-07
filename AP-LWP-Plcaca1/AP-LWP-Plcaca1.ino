@@ -1,44 +1,72 @@
+// placa1 para sensoriamento (ocupação);
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <Ultrasonic.h>
 
-// ======= CONFIGURAÇÕES DE REDE =======
-const char* ssid = "Redmi 8 do lucas";
-const char* password = "12345678";
+// ==========- Variaveis -==========
 
-// ======= CONFIGURAÇÕES MQTT =======
-const char* mqtt_server = "test.mosquitto.org";
-const int mqtt_port = 1883;
-const char* mqtt_topic = "porta/status";
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-
-// ======= CONFIGURAÇÃO DOS SENSORES =======
-#define TRIG1 18
-#define ECHO1 19
-#define TRIG2 23
-#define ECHO2 22
-
-Ultrasonic sensor1(TRIG1, ECHO1);
-Ultrasonic sensor2(TRIG2, ECHO2);
-
-// ======= VARIÁVEIS DE CONTROLE =======
-const int LIMIAR_BASE = 85;   // cm (limite padrão)
+const int LIMIAR_BASE = 85;  // cm (limite padrão)
 float limiarDinamico1 = LIMIAR_BASE;
 float limiarDinamico2 = LIMIAR_BASE;
 
 bool detectando = false;
 bool bloqueado = false;  // indica obstrução contínua
 unsigned long tempoObstrucao = 0;
-const unsigned long TEMPO_OBSTRUCAO = 1500; // 2 segundos
+const unsigned long TEMPO_OBSTRUCAO = 1500;  // 2 segundos
 
-String ordem[2] = {"", ""};
+String ordem[2] = { "", "" };
 unsigned long tempoInicial;
 const unsigned long TIMEOUT = 1500;
 
+// ========- Fim Variaveis -========
+
+// ============- pinos -============
+
+// Ultrassonico1
+#define TRIG1 18
+#define ECHO1 19
+
+// Ultrassonico2
+#define TRIG2 23
+#define ECHO2 22
+
+Ultrasonic sensor1(TRIG1, ECHO1);
+Ultrasonic sensor2(TRIG2, ECHO2);
+
+// ==========- Fim pinos -==========
+
+// ======- Config WiFi e MQTT -=====
+const char* ssid = "Redmi 8 do lucas";
+const char* password = "12345678";
+
+const char* mqtt_server = "test.mosquitto.org";
+const int mqtt_port = 1883;
+const char* mqtt_topic = "porta/status";
+
+// =========- Config LWT -==========
+// Status placa1
+const char* LWTTopic = "Placa1/status";
+const char* LWTMessage = "offline";
+const int LWTQoS = 1;
+const bool LWTRetain = true;
+
+// =====- Topico da placa LWT -=====
+const String placa1Topic = "placa1/status";
+
+// ===========- Funções -===========
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void connectToWiFi();
+void connectToBroker();
+
+// =============- JSON -============
+JsonDocument doc;
+
 // ======= FUNÇÕES DE CONEXÃO =======
-void conectarWiFi() {
+// Conexão WiFi
+void connectToWiFi() {
   Serial.print("Conectando-se ao WiFi...");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -50,7 +78,8 @@ void conectarWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-void conectarMQTT() {
+// Conexão Broker
+void connectToBroker() {
   while (!client.connected()) {
     Serial.print("Conectando ao MQTT...");
     if (client.connect("ESP32C6_Portas")) {
@@ -64,16 +93,31 @@ void conectarMQTT() {
   }
 }
 
+// recebe resposta
+void callback(char* topic, byte* payload, unsigned long length) {
+  String msg = "";
+
+  for (int i = 0; i < length; i++) msg += (char)payload[i];
+  Serial.print("\nTópico recebido: ");
+  Serial.println(topic);
+  Serial.print("Mensagem: ");
+  Serial.println(msg);
+}
+
 // ======= CONFIGURAÇÃO INICIAL =======
 void setup() {
   Serial.begin(115200);
-  conectarWiFi();
+
+  mqttClient.setServer(brokerUrl.c_str(), port);
+  mqttClient.setCallback(callbackMQTT);
+
+  connectToWiFi();
   client.setServer(mqtt_server, mqtt_port);
 }
 
 // ======= LOOP PRINCIPAL =======
 void loop() {
-  if (!client.connected()) conectarMQTT();
+  if (!client.connected()) connectToBroker();
   client.loop();
 
   float d1 = sensor1.read();
@@ -111,8 +155,7 @@ void loop() {
       Serial.print(" / ");
       Serial.println(limiarDinamico2);
     }
-  } 
-  else {
+  } else {
     tempoObstrucao = 0;
 
     // Se estava bloqueado e agora liberou → restaura padrão
