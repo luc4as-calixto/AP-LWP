@@ -17,13 +17,16 @@
  3. LED RGB - sinalização visual;
  4. DHT11 - sensor de temperatura e uminadade;
  5. display OLED - interface local;
- 6. dois Half Breadboard;
+ 6. dois Half Breadboard - placa para criar conexões temporárias;
 - Lista de Software:
-  1. programas:
+  1. Programas:
      - Arduino IDE
      - Node-RED
   2. Bibliotecas:
-     -
+     - WiFi
+     - PubSubClient
+     - Ultrasonic
+     - ArduinoJson
 
  
 
