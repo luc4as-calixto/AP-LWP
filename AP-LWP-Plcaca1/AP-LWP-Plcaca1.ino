@@ -95,15 +95,13 @@ void connectToBroker() {
     // Tenta conectar com LWT (Last Will and Testament)
     if (mqttClient.connect(
           userId.c_str(),
-          nullptr, nullptr,        
-          LWTTopic,            
-          LWTQoS,                 
-          LWTRetain,  
-          LWTMessage 
-        )) 
-    {
+          nullptr, nullptr,
+          LWTTopic,
+          LWTQoS,
+          LWTRetain,
+          LWTMessage)) {
       Serial.println("\n✅ Conectado ao broker MQTT!");
-      
+
       // Publica o status online
       mqttClient.publish(LWTTopic, "online", LWTRetain);
 
@@ -150,6 +148,12 @@ void setup() {
 void loop() {
   if (!mqttClient.connected()) connectToBroker();
   mqttClient.loop();
+
+  StaticJsonDocument<200> doc;
+  doc["evento"] = "livre";
+  String info;
+  serializeJson(doc, info);
+  mqttClient.publish(mqtt_topic, info.c_str());
 
   // leitura dos sensores
   float d1 = sensor1.read();
