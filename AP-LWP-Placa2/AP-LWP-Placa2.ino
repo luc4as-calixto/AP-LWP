@@ -216,9 +216,18 @@ void publishSensorData() {
 }
 
 void callbackMsg(char* topic, byte* payload, unsigned int length){
+  static unsigned long lastPrintTime = 0;
+  const unsigned long printInterval = 5000;
+  
   String msg;
+
   for (int i = 0; i < length; i++) msg += (char)payload[i];
-  Serial.println("[MQTT] Mensagem recebida: " + msg);
+
+  unsigned long now = millis();
+  if (now - lastPrintTime >= printInterval) {
+    Serial.println("[MQTT] Mensagem recebida: " + msg);
+    lastPrintTime = now;
+  }
 
   DynamicJsonDocument doc(256);
   DeserializationError error = deserializeJson(doc, msg);
