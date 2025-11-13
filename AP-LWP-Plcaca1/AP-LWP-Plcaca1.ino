@@ -4,6 +4,7 @@
 #include <PubSubClient.h>
 #include <Ultrasonic.h>
 #include <ArduinoJson.h>
+#include <WiFiClientSecure.h>
 
 // ==========- Variaveis -==========
 const int LIMIAR_BASE = 85;  // cm (limite padrão)
@@ -40,10 +41,12 @@ Ultrasonic sensor2(TRIG2, ECHO2);
 const char* ssid = "Redmi 8 do lucas";
 const char* password = "12345678";
 
-const char* mqtt_server = "test.mosquitto.org";
-const int mqtt_port = 1883;
+const char* mqtt_server = "a12cdd5731ea4278acb775f21997bddd.s1.eu.hivemq.cloud";
+const int mqtt_port = 8883;
 // Topic: envia a deteccao
 const char* mqtt_topic = "placa1/deteccao/LWP";
+const char* mqtt_user = "Placa1-Lucas";
+const char* mqtt_pass = "Placa1-Lucas";
 
 // =========- Config LWT -==========
 // Status placa1
@@ -52,12 +55,9 @@ const char* LWTMessage = "offline";
 const int LWTQoS = 1;
 const bool LWTRetain = true;
 
-// =====- Topico da placa LWT -=====
-const String placa1Topic = "placa1/status";
-
 // ===========- Funções -===========
 
-WiFiClient espClient;
+WiFiClientSecure espClient;
 PubSubClient mqttClient(espClient);
 
 void connectToWiFi();
@@ -95,12 +95,13 @@ void connectToBroker() {
     // Tenta conectar com LWT (Last Will and Testament)
     if (mqttClient.connect(
           userId.c_str(),
-          nullptr, nullptr,
+          mqtt_user, 
+          mqtt_pass,
           LWTTopic,
           LWTQoS,
           LWTRetain,
           LWTMessage)) {
-      Serial.println("\n✅ Conectado ao broker MQTT!");
+      Serial.println("\nConectado ao broker MQTT!");
 
       // Publica o status online
       mqttClient.publish(LWTTopic, "online", LWTRetain);
@@ -110,11 +111,6 @@ void connectToBroker() {
 
       // Define o callback
       mqttClient.setCallback(callback);
-    } else {
-      Serial.print("❌ Falha (rc=");
-      Serial.print(mqttClient.state());
-      Serial.println(") — Tentando novamente em 2s...");
-      delay(2000);
     }
   }
 }
@@ -136,6 +132,7 @@ void callback(char* topic, byte* payload, unsigned long length) {
 // ======= CONFIGURAÇÃO INICIAL =======
 void setup() {
   Serial.begin(115200);
+  espClient.setInsecure();
 
   connectToWiFi();
 
