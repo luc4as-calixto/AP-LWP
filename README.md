@@ -43,7 +43,7 @@
 | ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- |
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
-| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{ "ocupacao": 3, "limite_op": 5, "status_area": "Atenção", "sinalizacao": "amarelo" }` | 1       |
+| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{ "{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}" }`   | 1       |
 | `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "limite": 7 }`                                                                       | 1       |
 
 ---
@@ -55,6 +55,6 @@
 | Saída de pessoa simulada        | Passagem de saída                    | Decremento de -1 na ocupação                       | -1                   | OK         |
 | Placa1/Placa2 desconectada      | Desconexão de uma das Placas         | Status “offline” exibido no dashboard via LWT      | “offline”            | OK         |
 | Alteração do limite de ocupação | Mudança pelo dashboard               | Limite atualizado no tópico `placa1/config/limite` | Limite atualizado    | OK         |
-| LED RGB de sinalização          | Ocupação acima do limite             | LED acende vermelho                                | LED acendeu vermelho | OK         |
+| LED RGB de sinalização          | Ocupação Máxima atingida             | LED acende vermelho                                | LED acendeu vermelho | OK         |
 
 
