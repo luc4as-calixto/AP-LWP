@@ -61,7 +61,7 @@
 | ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- |
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
-| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{ "{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}" }`   | 1       |
+| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}"`        | 1       |
 | `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "limite": 7 }`                                                                       | 1       |
 
 ---
