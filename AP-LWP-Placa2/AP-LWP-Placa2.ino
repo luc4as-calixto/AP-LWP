@@ -229,13 +229,14 @@ void callbackMsg(char* topic, byte* payload, unsigned int length){
   }
 
   String status = doc["texto_pessoas_na_sala"] | "Indefinido";
-  int ocupacao = doc["pessoas_na_sala"] | 0;
+  String capacidade = doc["ocupacao_sala"] | "0/0";
+  int ocupacao = doc["contador"] | 0;
 
-  updateDisplay(status, ocupacao);
+  updateDisplay(status, ocupacao, capacidade);
   setColor(status);
 }
 
-void updateDisplay(String status, int ocupacao) {
+void updateDisplay(String status, int ocupacao, String capacidade) {
   static bool mostrarAmbiente = true;
   static unsigned long lastToggle = 0;
   const unsigned long toggleInterval = 7000;
@@ -278,6 +279,7 @@ void updateDisplay(String status, int ocupacao) {
     display.println("==== UMAF ====");
     display.println("Ocupacao atual:");
     display.println(String(ocupacao) + " pessoas");
+    display.println("Capacidade: " + capacidade);
     display.println("Status:");
     display.println(status);
   }
