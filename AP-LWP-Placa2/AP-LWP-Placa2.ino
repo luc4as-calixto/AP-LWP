@@ -7,14 +7,19 @@
 #include <DHT.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
+#include <WiFiClientSecure.h>
+
 
 // ========================
 // CONFIGURAÇÕES WIFI/MQTT
 // ========================
 const char* SSID = "Redmi 8 do lucas";
 const char* PWSD = "12345678";
-const char* brokerUrl = "test.mosquitto.org";
-const int port = 1883;
+const char* brokerUrl = "a12cdd5731ea4278acb775f21997bddd.s1.eu.hivemq.cloud";
+const char* mqttUser = "Placa2-Pedro";
+const char* mqttPwsd = "Placa2-Pedro";
+
+const int port = 8883;
 
 // ===============
 // TOPICOS MQTT
@@ -58,7 +63,7 @@ Adafruit_NeoPixel rgb(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 // =====================
 // OBJETOS E VARIAVEIS
 // =====================
-WiFiClient espClient;
+WiFiClientSecure espClient;
 PubSubClient mqttClient(espClient);
 
 unsigned long lastPublish = 0;
@@ -78,7 +83,7 @@ int lastOcupacao = -1;
 void setup() {
   Serial.begin(115200);
 
-  
+  espClient.setInsecure();
   Wire.begin(I2C_SDA, I2C_SCK);
   rgb.begin();
   rgb.clear();
@@ -151,8 +156,8 @@ void connectBroker() {
 
   if (mqttClient.connect(
     clientId.c_str(),       // ID da placa
-    "",                     // usuario (broker)
-    "",                     // senha   (broker)
+    mqttUser,             // usuario (broker)
+    mqttPwsd,             // senha   (broker)
     TOPIC_LWT,              // Topico (LWT) ?
     LwtQos,                 // QoS (Nível 0/1/2)
     LwtRetain,              // Retenção das mensagens no broker (true/false)
