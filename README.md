@@ -11,24 +11,7 @@
 ---
 
 ## Descrição dos Componentes Utilizados
-- Lista de Hardware: modelo e função de cada componente:
- 1. dois esp32-c6 - mincrocontrolador principal;
- 2. dois HC-SR04 - sensor ultrassônico de presença;
- 3. LED RGB - sinalização visual;
- 4. DHT11 - sensor de temperatura e uminadade;
- 5. display OLED - interface local;
- 6. dois Half Breadboard - placa para criar conexões temporárias;
-- Lista de Software:
-  1. Programas:
-     - Arduino IDE
-     - Node-RED
-  2. Bibliotecas:
-     - WiFi
-     - PubSubClient
-     - Ultrasonic
-     - ArduinoJson
-
- 
+ *Hardwares e Softwares*
 
 **Hardware**
 | **Componente**           | **Função**                                                                                 | **Justificativa Técnica**                                                                                            |
@@ -62,7 +45,7 @@
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
 | `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}"`        | 1       |
-| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "limite": 7 }`                                                                       | 1       |
+| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "min": 0, "max": max }`                                                              | 1       |
 
 ---
 
