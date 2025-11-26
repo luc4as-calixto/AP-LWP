@@ -71,6 +71,9 @@ garantindo monitoramento contínuo, lógica centralizada e visualização integr
 | `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "min": 0, "max": max }`                                                              | 1       |
 
 ---
+## Evidências de Funcionamento
+
+<img width="976" height="65" alt="image" src="https://github.com/user-attachments/assets/bc260674-9ff7-48b2-90f1-c920f5f47b2a" />
 
 ## Registro de Testes
 | **Teste**                       | **Ação Realizada**                   | **Resultado Esperado**                             | **Resultado Obtido** | **Status** |
