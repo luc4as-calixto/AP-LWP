@@ -220,7 +220,7 @@ void publishSensorData() {
 
 void callbackMsg(char* topic, byte* payload, unsigned int length){
   static unsigned long lastPrintTime = 0;
-  const unsigned long printInterval = 10000;
+  const unsigned long printInterval = 5000;
   
   String msg;
 
