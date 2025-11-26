@@ -6,7 +6,7 @@
 - Pedro Henrique Bartsch Da Silva  
 
 **Turma:** TDESI 2024 1/V1  
-**Data de entrega:** ??/??/????  
+**Data de entrega:** 27/11/2025  
 
 ---
 
@@ -61,6 +61,7 @@ garantindo monitoramento contínuo, lógica centralizada e visualização integr
 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/7297cd29-fc7b-4b7e-92d8-e34419b9e898" />
 
+
 ---
 ## Estrutura dos Tópicos MQTT e Payloads
 | **Tópico**                    | **Função**                                                       | **Exemplo de Payload (JSON)**                                                           | **QoS** |
@@ -68,12 +69,31 @@ garantindo monitoramento contínuo, lógica centralizada e visualização integr
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
 | `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}"`        | 1       |
-| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "min": 0, "max": max }`                                                              | 1       |
-
+| `placa1/quantidade/slider`    | Manda a quantidade de pessoas deseja pelo usuário                | `{ "max": 100 }`                                                                        | 0       |
+| `placa1/aviso`                | Manda o aviso de ocupação                                        | `{ "aviso": "OK" }`                                                                     | 0       |
+| `placa1/gauge`                | Manda o contador para o gauge                                    | `{contador: 17}`                                                                        | 0       |
+| `placa1/ocupacao_da_sala`     | Manda a ocupaçao da sala                                         | `{ocupacao_sala: 17/100}`                                                               | 0       |
+| `placa1/situacao_sala`        | Manda a situação da sala                                         | `{texto_pessoas_na_sala: vazio}`                                                        | 0       |
+| `placa1/deteccao`             | Manda o evento que ocorreu                                       | `{msg.payload.evento: livre}`                                                           | 0       |
+| `placa1/status  `             | Publica o status da placa 1                                      | `{msg.payload: online}`                                                                 | 0       |
+| `placa2/status  `             | Publica o status da placa 2                                      | `{msg.payload: online}`                                                                 | 0       |
+ 
 ---
 ## Evidências de Funcionamento
 
+Seriel arduino Placa1:
+
+<img width="792" height="134" alt="image" src="https://github.com/user-attachments/assets/e2d7328c-a3c0-4e4c-8a15-f7c4d8db53e4" />
+
+
+Serial arduino placa2:
+ 
 <img width="976" height="65" alt="image" src="https://github.com/user-attachments/assets/bc260674-9ff7-48b2-90f1-c920f5f47b2a" />
+
+Dashboard:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/89d4a124-1b8c-4a92-afda-42aeaee65eaf" />
+
 
 ## Registro de Testes
 | **Teste**                       | **Ação Realizada**                   | **Resultado Esperado**                             | **Resultado Obtido** | **Status** |
