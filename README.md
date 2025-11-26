@@ -39,6 +39,29 @@
 
 ---
 
+## Diagrama do Sistema IoT 
+  **Descrição**
+O diagrama apresenta a arquitetura geral do sistema IoT, dividida em quatro subsistemas que se comunicam via **MQTT** utilizando **Wi-Fi** e um **broker privado HiveMQ**.
+
+* **Nó de Controle de Acesso (NCA):**
+  Realiza medições de ocupação (ultrassônico) e ambiente (DHT11). Envia esses dados ao Orquestrador.
+
+* **Unidade de Monitoramento Ambiental e Feedback (UMAF):**
+  Recebe do Orquestrador informações sobre o estado da sala e exibe no display OLED. Também envia dados ambientais complementares.
+
+* **Orquestrador de Processos (Node-RED – Lógica):**
+  Processa todas as mensagens recebidas dos dispositivos, consolida informações e envia comandos e feedback.
+
+* **Centro de Controle e Visualização (Node-RED – Dashboard):**
+  Exibe em tempo real o estado da sala, medições e alertas para o usuário, recebendo dados do Orquestrador.
+
+O fluxo principal segue:
+**NCA → Orquestrador → UMAF & Dashboard**,
+garantindo monitoramento contínuo, lógica centralizada e visualização integrada.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/622101fa-4fe6-46bf-98ce-a5fa801c623d" />
+
+---
 ## Estrutura dos Tópicos MQTT e Payloads
 | **Tópico**                    | **Função**                                                       | **Exemplo de Payload (JSON)**                                                           | **QoS** |
 | ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- |
