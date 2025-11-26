@@ -11,24 +11,7 @@
 ---
 
 ## Descrição dos Componentes Utilizados
-- Lista de Hardware: modelo e função de cada componente:
- 1. dois esp32-c6 - mincrocontrolador principal;
- 2. dois HC-SR04 - sensor ultrassônico de presença;
- 3. LED RGB - sinalização visual;
- 4. DHT11 - sensor de temperatura e uminadade;
- 5. display OLED - interface local;
- 6. dois Half Breadboard - placa para criar conexões temporárias;
-- Lista de Software:
-  1. Programas:
-     - Arduino IDE
-     - Node-RED
-  2. Bibliotecas:
-     - WiFi
-     - PubSubClient
-     - Ultrasonic
-     - ArduinoJson
-
- 
+ *Hardwares e Softwares*
 
 **Hardware**
 | **Componente**           | **Função**                                                                                 | **Justificativa Técnica**                                                                                            |
@@ -56,13 +39,36 @@
 
 ---
 
+## Diagrama do Sistema IoT 
+  **Descrição**
+O diagrama apresenta a arquitetura geral do sistema IoT, dividida em quatro subsistemas que se comunicam via **MQTT** utilizando **Wi-Fi** e um **broker privado HiveMQ**.
+
+* **Nó de Controle de Acesso (NCA):**
+  Realiza medições de ocupação (ultrassônico) e ambiente (DHT11). Envia esses dados ao Orquestrador.
+
+* **Unidade de Monitoramento Ambiental e Feedback (UMAF):**
+  Recebe do Orquestrador informações sobre o estado da sala e exibe no display OLED. Também envia dados ambientais complementares.
+
+* **Orquestrador de Processos (Node-RED – Lógica):**
+  Processa todas as mensagens recebidas dos dispositivos, consolida informações e envia comandos e feedback.
+
+* **Centro de Controle e Visualização (Node-RED – Dashboard):**
+  Exibe em tempo real o estado da sala, medições e alertas para o usuário, recebendo dados do Orquestrador.
+
+O fluxo principal segue:
+**NCA → Orquestrador → UMAF & Dashboard**,
+garantindo monitoramento contínuo, lógica centralizada e visualização integrada.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/7297cd29-fc7b-4b7e-92d8-e34419b9e898" />
+
+---
 ## Estrutura dos Tópicos MQTT e Payloads
 | **Tópico**                    | **Função**                                                       | **Exemplo de Payload (JSON)**                                                           | **QoS** |
 | ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- |
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
 | `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}"`        | 1       |
-| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "limite": 7 }`                                                                       | 1       |
+| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "min": 0, "max": max }`                                                              | 1       |
 
 ---
 
