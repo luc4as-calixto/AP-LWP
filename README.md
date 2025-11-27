@@ -94,6 +94,15 @@ Dashboard:
 
 <img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/89d4a124-1b8c-4a92-afda-42aeaee65eaf" />
 
+Placa 1:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/417f47e9-84c0-475c-8567-4e14d3d6c3f3" />
+
+
+Placa 2:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/8bfacaf2-dca8-4965-84f4-b4dba004ef65" />
+
 
 ## Registro de Testes
 | **Teste**                       | **Ação Realizada**                   | **Resultado Esperado**                             | **Resultado Obtido** | **Status** |
