@@ -1,0 +1,1185 @@
+[
+    {
+        "id": "df3813a758af17ab",
+        "type": "tab",
+        "label": "Fluxo 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "e3ca64a71b0b3b66",
+        "type": "ui-slider",
+        "z": "df3813a758af17ab",
+        "group": "d3004a04ad7cbfb0",
+        "name": "Quantidade",
+        "label": "Quantidade",
+        "tooltip": "",
+        "order": 2,
+        "width": 6,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "payload",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": "10",
+        "max": "100",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 210,
+        "y": 160,
+        "wires": [
+            [
+                "326778fea9d699e9",
+                "8ebdbc6ecff5aa47"
+            ]
+        ]
+    },
+    {
+        "id": "326778fea9d699e9",
+        "type": "mqtt out",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/quantidade/slider",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 530,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "7f43cb7005cfdc65",
+        "type": "switch",
+        "z": "df3813a758af17ab",
+        "name": "if evento",
+        "property": "payload.aviso",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "<font color=\"red\">Número escolhido para a ocupação<br>está menor que a ocupação atual</font>",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "OK",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SALA CHEIA",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 480,
+        "y": 380,
+        "wires": [
+            [
+                "a920806bd95afab0"
+            ],
+            [
+                "a920806bd95afab0"
+            ],
+            [
+                "a920806bd95afab0"
+            ]
+        ]
+    },
+    {
+        "id": "a920806bd95afab0",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "981117e90b1f5fd2",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "Aviso",
+        "label": "AVISO: ",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload.aviso",
+        "valueType": "msg",
+        "x": 710,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "1b5e6698378bb02c",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/aviso",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 380,
+        "wires": [
+            [
+                "7f43cb7005cfdc65"
+            ]
+        ]
+    },
+    {
+        "id": "94142251a92c16f4",
+        "type": "ui-gauge",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "group": "d3004a04ad7cbfb0",
+        "order": 1,
+        "value": "payload.contador",
+        "valueType": "msg",
+        "width": 6,
+        "height": 3,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "gauge",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "30",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "60",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 710,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5414c03577812540",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/gauge",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 490,
+        "y": 300,
+        "wires": [
+            [
+                "94142251a92c16f4"
+            ]
+        ]
+    },
+    {
+        "id": "8ebdbc6ecff5aa47",
+        "type": "function",
+        "z": "df3813a758af17ab",
+        "name": "função do valor max ",
+        "func": "let max = msg.payload; // valor vindo do slider\n\nmsg.payload = { max }; // ajusta a estrutura\n\n// Atualiza o gauge com limites dinâmicos\nmsg.ui_update = {\n    min: 0,\n    max: max\n};\n\n// Armazena o novo limite máximo no fluxo\nflow.set(\"max\", max);\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 240,
+        "wires": [
+            [
+                "94142251a92c16f4"
+            ]
+        ]
+    },
+    {
+        "id": "af574fa4a294403b",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/situacao_sala",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 240,
+        "y": 460,
+        "wires": [
+            [
+                "8e0b45581857e9d3"
+            ]
+        ]
+    },
+    {
+        "id": "8e0b45581857e9d3",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "981117e90b1f5fd2",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Situação da sala",
+        "label": "Situação:  ",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload.texto_pessoas_na_sala",
+        "valueType": "msg",
+        "x": 510,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "4b59022d17f06799",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/chart/ocupacao_sala",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 260,
+        "y": 540,
+        "wires": [
+            [
+                "a0e51ca57b28ff50"
+            ]
+        ]
+    },
+    {
+        "id": "f3dafc31f4cda092",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "981117e90b1f5fd2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Ocupação da sala",
+        "label": "Ocupação da sala: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload.ocupacao_sala",
+        "valueType": "msg",
+        "x": 510,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "73c6c1d22946792b",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/ocupacao_da_sala",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 250,
+        "y": 620,
+        "wires": [
+            [
+                "f3dafc31f4cda092"
+            ]
+        ]
+    },
+    {
+        "id": "13c17c76672a16c6",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "2e355c46438c3bba",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 150,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "e89cd84469969e80",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "2e355c46438c3bba",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 50,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "949b5151e274f6f9",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "981117e90b1f5fd2",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Detecção",
+        "label": "evento: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload.evento",
+        "valueType": "msg",
+        "x": 480,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "459e843a7077cdf3",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/deteccao",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 700,
+        "wires": [
+            [
+                "949b5151e274f6f9"
+            ]
+        ]
+    },
+    {
+        "id": "19882f9eeb4b7bca",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/temperatura",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 820,
+        "wires": [
+            [
+                "88c644b8d213d0a7"
+            ]
+        ]
+    },
+    {
+        "id": "b595483c14672173",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/umidade",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 940,
+        "wires": [
+            [
+                "b6222aabf93dc26a"
+            ]
+        ]
+    },
+    {
+        "id": "78c85614d2fc10d6",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/chart/temperatura",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 250,
+        "y": 880,
+        "wires": [
+            [
+                "53a2c60182e353d1"
+            ]
+        ]
+    },
+    {
+        "id": "53a2c60182e353d1",
+        "type": "delay",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "2",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 880,
+        "wires": [
+            [
+                "ceaca911a9c48d2b"
+            ]
+        ]
+    },
+    {
+        "id": "ceaca911a9c48d2b",
+        "type": "ui-chart",
+        "z": "df3813a758af17ab",
+        "group": "7fa4c007e56c76f4",
+        "name": "temperatura",
+        "label": "Gráfico de temperatura",
+        "order": 2,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "Tempo",
+        "xAxisProperty": "payload.tempo",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "temperatura",
+        "yAxisProperty": "payload.temperatura",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "70",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "line",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": "1",
+        "removeOlderUnit": "86400",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 4,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 730,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b279bdd620d1875a",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/chart/umidade",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 240,
+        "y": 1000,
+        "wires": [
+            [
+                "168e7d2f63c7478e"
+            ]
+        ]
+    },
+    {
+        "id": "c3b1eedcc3b14252",
+        "type": "ui-chart",
+        "z": "df3813a758af17ab",
+        "group": "7fa4c007e56c76f4",
+        "name": "umidade",
+        "label": "Gráfico de umidade",
+        "order": 3,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "Tempo",
+        "xAxisProperty": "payload.tempo",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "umidade",
+        "yAxisProperty": "payload.umidade",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "70",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "line",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": "1",
+        "removeOlderUnit": "86400",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 4,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 720,
+        "y": 1000,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "168e7d2f63c7478e",
+        "type": "delay",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "2",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 1000,
+        "wires": [
+            [
+                "c3b1eedcc3b14252"
+            ]
+        ]
+    },
+    {
+        "id": "6e020ba921c6b455",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "2e355c46438c3bba",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Status PLACA1",
+        "label": "Placa 1:  ",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 500,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "33a6ef2b7ca400de",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/status/placa1",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 1160,
+        "wires": [
+            [
+                "6e020ba921c6b455"
+            ]
+        ]
+    },
+    {
+        "id": "a2992f4fab978cf4",
+        "type": "ui-text",
+        "z": "df3813a758af17ab",
+        "group": "2e355c46438c3bba",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "Status PLACA2",
+        "label": "Placa 2: ",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 500,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "df53217689c5f1fc",
+        "type": "mqtt in",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "topic": "placa1/status/placa2",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 1220,
+        "wires": [
+            [
+                "a2992f4fab978cf4"
+            ]
+        ]
+    },
+    {
+        "id": "88c644b8d213d0a7",
+        "type": "ui-gauge",
+        "z": "df3813a758af17ab",
+        "name": "temperatura",
+        "group": "520b4e7cf22a8e2c",
+        "order": 1,
+        "value": "payload.temperatura",
+        "valueType": "msg",
+        "width": 2,
+        "height": 4,
+        "gtype": "gauge-half",
+        "gstyle": "needle",
+        "title": "temperatura",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#00b3ff",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "20",
+                "color": "#5cd65c",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "40",
+                "color": "#ffc800",
+                "text": "",
+                "textType": "label"
+            },
+            {
+                "from": "60",
+                "color": "#ea5353",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "70",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 490,
+        "y": 820,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b6222aabf93dc26a",
+        "type": "ui-gauge",
+        "z": "df3813a758af17ab",
+        "name": "umidade",
+        "group": "520b4e7cf22a8e2c",
+        "order": 2,
+        "value": "payload.umidade",
+        "valueType": "msg",
+        "width": 1,
+        "height": 4,
+        "gtype": "gauge-tank",
+        "gstyle": "needle",
+        "title": "umidade",
+        "alwaysShowTitle": false,
+        "floatingTitlePosition": "top-left",
+        "units": "units",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#00b3ff",
+                "text": "",
+                "textType": "label"
+            }
+        ],
+        "min": 0,
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 480,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f1ed2506fdd39f8",
+        "type": "ui-chart",
+        "z": "df3813a758af17ab",
+        "group": "7fa4c007e56c76f4",
+        "name": "Gráfico de ocupação",
+        "label": "Gráfico de ocupação",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "Tempo",
+        "xAxisProperty": "payload.tempo",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "Ocupação da sala",
+        "yAxisProperty": "payload.contador",
+        "yAxisPropertyType": "msg",
+        "ymin": "0",
+        "ymax": "100",
+        "bins": 10,
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "line",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": "1",
+        "removeOlderUnit": "86400",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#a347e1",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": false,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": false,
+        "width": 4,
+        "height": 8,
+        "className": "",
+        "interpolation": "linear",
+        "x": 760,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a0e51ca57b28ff50",
+        "type": "delay",
+        "z": "df3813a758af17ab",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "4",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 500,
+        "y": 540,
+        "wires": [
+            [
+                "4f1ed2506fdd39f8"
+            ]
+        ]
+    },
+    {
+        "id": "d3004a04ad7cbfb0",
+        "type": "ui-group",
+        "name": "Ocupação da sala",
+        "page": "41ec236e86b404af",
+        "width": 5,
+        "height": 1,
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "11f33488da8b5f7f",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "a12cdd5731ea4278acb775f21997bddd.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "730e86935e31e207",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "981117e90b1f5fd2",
+        "type": "ui-group",
+        "name": "Placa1",
+        "page": "41ec236e86b404af",
+        "width": 2,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "2e355c46438c3bba",
+        "type": "ui-group",
+        "name": "Status placas",
+        "page": "41ec236e86b404af",
+        "width": 2,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "7fa4c007e56c76f4",
+        "type": "ui-group",
+        "name": "Gráficos",
+        "page": "41ec236e86b404af",
+        "width": 12,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "520b4e7cf22a8e2c",
+        "type": "ui-group",
+        "name": "Placa2",
+        "page": "41ec236e86b404af",
+        "width": 3,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "41ec236e86b404af",
+        "type": "ui-page",
+        "name": "dashboard",
+        "ui": "2fab56c08b8d8f72",
+        "path": "/page1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "449cb95906369c9e",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "730e86935e31e207",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "2fab56c08b8d8f72",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "449cb95906369c9e",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "4bd06bd30af5309c",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.29.0"
+        }
+    }
+]

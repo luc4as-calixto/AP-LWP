@@ -97,7 +97,9 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
+  display.println("=================");
   display.println("Iniciando UMAF...");
+  display.println("=================");
   display.display();
 
   dht.begin();
@@ -149,10 +151,11 @@ void connectBroker() {
    
   mqttClient.setServer(brokerUrl, port);      // setServer(broker conectado, porta de entrada)
   mqttClient.setCallback(callbackMsg);
+  mqttClient.setKeepAlive(60);
 
   // ID
   String clientId = "UMAF-";
-  clientId = String(random(0xffff), HEX);
+  // clientId = String(random(0xffff), HEX);
 
   if (mqttClient.connect(
     clientId.c_str(),       // ID da placa
@@ -164,7 +167,7 @@ void connectBroker() {
     LwtMsg)){               // Mensagem LWT
         
     Serial.println("[MQTT] Conectado com sucesso!");
-    mqttClient.publish(TOPIC_LWT," online",true);
+    mqttClient.publish(TOPIC_LWT,"online",true);
     mqttClient.subscribe(TOPIC_OCUPACAO);
     } else{
       Serial.print("[MQTT] Falha. Código: ");
@@ -216,9 +219,18 @@ void publishSensorData() {
 }
 
 void callbackMsg(char* topic, byte* payload, unsigned int length){
+  static unsigned long lastPrintTime = 0;
+  const unsigned long printInterval = 5000;
+  
   String msg;
+
   for (int i = 0; i < length; i++) msg += (char)payload[i];
-  Serial.println("[MQTT] Mensagem recebida: " + msg);
+
+  unsigned long now = millis();
+  if (now - lastPrintTime >= printInterval) {
+    Serial.println("[MQTT] Mensagem recebida: " + msg);
+    lastPrintTime = now;
+  }
 
   DynamicJsonDocument doc(256);
   DeserializationError error = deserializeJson(doc, msg);

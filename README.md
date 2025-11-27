@@ -6,29 +6,12 @@
 - Pedro Henrique Bartsch Da Silva  
 
 **Turma:** TDESI 2024 1/V1  
-**Data de entrega:** ??/??/????  
+**Data de entrega:** 27/11/2025  
 
 ---
 
 ## Descrição dos Componentes Utilizados
-- Lista de Hardware: modelo e função de cada componente:
- 1. dois esp32-c6 - mincrocontrolador principal;
- 2. dois HC-SR04 - sensor ultrassônico de presença;
- 3. LED RGB - sinalização visual;
- 4. DHT11 - sensor de temperatura e uminadade;
- 5. display OLED - interface local;
- 6. dois Half Breadboard - placa para criar conexões temporárias;
-- Lista de Software:
-  1. Programas:
-     - Arduino IDE
-     - Node-RED
-  2. Bibliotecas:
-     - WiFi
-     - PubSubClient
-     - Ultrasonic
-     - ArduinoJson
-
- 
+ *Hardwares e Softwares*
 
 **Hardware**
 | **Componente**           | **Função**                                                                                 | **Justificativa Técnica**                                                                                            |
@@ -56,15 +39,70 @@
 
 ---
 
+## Diagrama do Sistema IoT 
+  **Descrição**
+O diagrama apresenta a arquitetura geral do sistema IoT, dividida em quatro subsistemas que se comunicam via **MQTT** utilizando **Wi-Fi** e um **broker privado HiveMQ**.
+
+* **Nó de Controle de Acesso (NCA):**
+  Realiza medições de ocupação (ultrassônico) e ambiente (DHT11). Envia esses dados ao Orquestrador.
+
+* **Unidade de Monitoramento Ambiental e Feedback (UMAF):**
+  Recebe do Orquestrador informações sobre o estado da sala e exibe no display OLED. Também envia dados ambientais complementares.
+
+* **Orquestrador de Processos (Node-RED – Lógica):**
+  Processa todas as mensagens recebidas dos dispositivos, consolida informações e envia comandos e feedback.
+
+* **Centro de Controle e Visualização (Node-RED – Dashboard):**
+  Exibe em tempo real o estado da sala, medições e alertas para o usuário, recebendo dados do Orquestrador.
+
+O fluxo principal segue:
+**NCA → Orquestrador → UMAF & Dashboard**,
+garantindo monitoramento contínuo, lógica centralizada e visualização integrada.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/7297cd29-fc7b-4b7e-92d8-e34419b9e898" />
+
+
+---
 ## Estrutura dos Tópicos MQTT e Payloads
 | **Tópico**                    | **Função**                                                       | **Exemplo de Payload (JSON)**                                                           | **QoS** |
 | ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- |
 | `placa1/ocupacao/LWP`         | Publicação de entrada/saída de pessoas pelo NCA                  | `{ "evento": "entrada", "timestamp": 1730000123 }`                                      | 2       |
 | `placa2/ambiente/LWP`         | Publicação de dados ambientais (temperatura e umidade) pela UMAF | `{ "temperatura": 24.1, "umidade": 56.2 }`                                              | 1       |
-| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{ "ocupacao": 3, "limite_op": 5, "status_area": "Atenção", "sinalizacao": "amarelo" }` | 1       |
-| `placa1/config/limite`        | Configuração do limite de ocupação via Dashboard                 | `{ "limite": 7 }`                                                                       | 1       |
-
+| `placa1/ocupacao/consolidado` | Estado completo da sala consolidado pelo Orquestrador            | `{"texto_pessoas_na_sala":"Ocupacao ok","ocupacao_sala":"16/98","contador":16}"`        | 1       |
+| `placa1/quantidade/slider`    | Manda a quantidade de pessoas deseja pelo usuário                | `{ "max": 100 }`                                                                        | 0       |
+| `placa1/aviso`                | Manda o aviso de ocupação                                        | `{ "aviso": "OK" }`                                                                     | 0       |
+| `placa1/gauge`                | Manda o contador para o gauge                                    | `{contador: 17}`                                                                        | 0       |
+| `placa1/ocupacao_da_sala`     | Manda a ocupaçao da sala                                         | `{ocupacao_sala: 17/100}`                                                               | 0       |
+| `placa1/situacao_sala`        | Manda a situação da sala                                         | `{texto_pessoas_na_sala: vazio}`                                                        | 0       |
+| `placa1/deteccao`             | Manda o evento que ocorreu                                       | `{msg.payload.evento: livre}`                                                           | 0       |
+| `placa1/status  `             | Publica o status da placa 1                                      | `{msg.payload: online}`                                                                 | 0       |
+| `placa2/status  `             | Publica o status da placa 2                                      | `{msg.payload: online}`                                                                 | 0       |
+ 
 ---
+## Evidências de Funcionamento
+
+Seriel arduino Placa1:
+
+<img width="792" height="134" alt="image" src="https://github.com/user-attachments/assets/e2d7328c-a3c0-4e4c-8a15-f7c4d8db53e4" />
+
+
+Serial arduino placa2:
+ 
+<img width="976" height="65" alt="image" src="https://github.com/user-attachments/assets/bc260674-9ff7-48b2-90f1-c920f5f47b2a" />
+
+Dashboard:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/89d4a124-1b8c-4a92-afda-42aeaee65eaf" />
+
+Placa 1:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/417f47e9-84c0-475c-8567-4e14d3d6c3f3" />
+
+
+Placa 2:
+
+<img width="976" height="841" alt="image" src="https://github.com/user-attachments/assets/8bfacaf2-dca8-4965-84f4-b4dba004ef65" />
+
 
 ## Registro de Testes
 | **Teste**                       | **Ação Realizada**                   | **Resultado Esperado**                             | **Resultado Obtido** | **Status** |
@@ -73,6 +111,6 @@
 | Saída de pessoa simulada        | Passagem de saída                    | Decremento de -1 na ocupação                       | -1                   | OK         |
 | Placa1/Placa2 desconectada      | Desconexão de uma das Placas         | Status “offline” exibido no dashboard via LWT      | “offline”            | OK         |
 | Alteração do limite de ocupação | Mudança pelo dashboard               | Limite atualizado no tópico `placa1/config/limite` | Limite atualizado    | OK         |
-| LED RGB de sinalização          | Ocupação acima do limite             | LED acende vermelho                                | LED acendeu vermelho | OK         |
+| LED RGB de sinalização          | Ocupação Máxima atingida             | LED acende vermelho                                | LED acendeu vermelho | OK         |
 
 

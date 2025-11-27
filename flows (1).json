@@ -1,0 +1,908 @@
+[
+    {
+        "id": "e8048db6c98f6ea6",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d5636e6ceb7b95d4",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "Evento:",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.evento",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "efca19cf6dbd8138",
+        "type": "mqtt in",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/deteccao/LWP",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 340,
+        "y": 360,
+        "wires": [
+            [
+                "d5636e6ceb7b95d4",
+                "3fc74bbd0717f6a2",
+                "757f9ab366894e26"
+            ]
+        ]
+    },
+    {
+        "id": "818ede4a9806ad31",
+        "type": "mqtt in",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "Placa1/status",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 310,
+        "y": 1140,
+        "wires": [
+            [
+                "0b4802cc03b6761f",
+                "d54125e9ab0f7042"
+            ]
+        ]
+    },
+    {
+        "id": "0b4802cc03b6761f",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "Status Placa1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "3fc74bbd0717f6a2",
+        "type": "switch",
+        "z": "e8048db6c98f6ea6",
+        "name": "if evento",
+        "property": "payload.evento",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "entrada",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "saida",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "livre",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "caminho bloqueado",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 600,
+        "y": 480,
+        "wires": [
+            [
+                "f816c0a089cddb3d"
+            ],
+            [
+                "1bfd187d136fe84b"
+            ],
+            [
+                "94f3000d7a5445cb"
+            ],
+            [
+                "11ea831c1eee49bb"
+            ]
+        ]
+    },
+    {
+        "id": "d54125e9ab0f7042",
+        "type": "switch",
+        "z": "e8048db6c98f6ea6",
+        "name": "if status",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "online",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "offline",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 600,
+        "y": 1180,
+        "wires": [
+            [
+                "dcdfdcad8714a086"
+            ],
+            [
+                "c00c146159c48099"
+            ]
+        ]
+    },
+    {
+        "id": "dcdfdcad8714a086",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text online",
+        "func": "msg.payload  = `<font color=green>${msg.payload}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1160,
+        "wires": [
+            [
+                "d9cfc4022a9ea626"
+            ]
+        ]
+    },
+    {
+        "id": "c00c146159c48099",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text offline",
+        "func": "msg.payload  = `<font color=red>${msg.payload}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1200,
+        "wires": [
+            [
+                "d9cfc4022a9ea626"
+            ]
+        ]
+    },
+    {
+        "id": "f816c0a089cddb3d",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text entrada",
+        "func": "msg.payload.evento  = `<font color=green>${msg.payload.evento}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 420,
+        "wires": [
+            [
+                "059f1eabe74cf85b"
+            ]
+        ]
+    },
+    {
+        "id": "1bfd187d136fe84b",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text saida",
+        "func": "msg.payload.evento  = `<font color=orange>${msg.payload.evento}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 480,
+        "wires": [
+            [
+                "059f1eabe74cf85b"
+            ]
+        ]
+    },
+    {
+        "id": "77029f1613df3038",
+        "type": "mqtt in",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa2/ambiente/LWP",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 340,
+        "y": 1300,
+        "wires": [
+            [
+                "cb69ce859f9ad7c8",
+                "b44c027e98bba1e2"
+            ]
+        ]
+    },
+    {
+        "id": "cb69ce859f9ad7c8",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "Status Placa2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "b44c027e98bba1e2",
+        "type": "switch",
+        "z": "e8048db6c98f6ea6",
+        "name": "if status",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "online",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "offline",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 600,
+        "y": 1320,
+        "wires": [
+            [
+                "a25a3b3cbf4d5952"
+            ],
+            [
+                "723fbde67a61a39b"
+            ]
+        ]
+    },
+    {
+        "id": "a25a3b3cbf4d5952",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text online",
+        "func": "msg.payload  = `<font color=green>${msg.payload}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1300,
+        "wires": [
+            [
+                "5a9d7a524fcd44d1"
+            ]
+        ]
+    },
+    {
+        "id": "723fbde67a61a39b",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text offline",
+        "func": "msg.payload  = `<font color=red>${msg.payload}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1340,
+        "wires": [
+            [
+                "5a9d7a524fcd44d1"
+            ]
+        ]
+    },
+    {
+        "id": "757f9ab366894e26",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "função de contagem de pessoas",
+        "func": "// Pega o contador atual (se não existir, começa em 0)\nlet contador = flow.get(\"contadorPessoas\") || 0;\nlet ocupacao_sala = flow.get(\"ocupacaoSala\") || \"0/100\";\nlet max = flow.get(\"max\");\n\n// Lê a ação recebida\nlet acao = msg.payload.evento;\n\nif (max < contador) {\n    max = contador + 1;\n}\n\n// Atualiza o contador conforme a ação\nif (acao === \"entrada\" && contador < max) {\n    contador++;\n} else if (acao === \"saida\" && contador > 0) {\n    contador--;\n}\n\n// Atualiza a string de ocupação\nocupacao_sala = contador + \"/\" + max;\n\n// Define o texto conforme a ocupação\nlet texto;\nif (contador == max || contador > max - 4) {\n    texto = \"Ocupacao maxima\";\n} else if (contador >= max / 2 && contador < max - 4) {\n    texto = \"Ocupacao media\";\n} else if (contador < max / 2 && contador > 0) {\n    texto = \"Ocupacao ok\";\n}else if (contador == 0) {\n    texto = \"Ocupacao vazia\";\n}\n\n\n\n// Salva o novo valor no fluxo\nflow.set(\"contadorPessoas\", contador);\nflow.set(\"ocupacaoSala\", ocupacao_sala);\n\n// Envia ambos os dados\nmsg.payload = {\n    texto_pessoas_na_sala: texto,\n    ocupacao_sala: ocupacao_sala,\n    contador: contador\n};\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 240,
+        "wires": [
+            [
+                "46e5e60335fec6bb",
+                "5ee892e8c7fd3387",
+                "b3dda82f9b2bb312",
+                "9744c184e2c3bcf0",
+                "20b70d5db8ad6ab9",
+                "7e4e31e7c6bec886"
+            ]
+        ]
+    },
+    {
+        "id": "daed00c5c5187605",
+        "type": "mqtt in",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa2/ambiente/dado",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 340,
+        "y": 760,
+        "wires": [
+            [
+                "dbc3f1f45abd6b11",
+                "71475d6f07131179",
+                "79ac84e3c0f2c142",
+                "c72f338fe212544d",
+                "b44d0347358a6ce8",
+                "23157d8c28a31779"
+            ]
+        ]
+    },
+    {
+        "id": "dbc3f1f45abd6b11",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "temperatura: ",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.temperatura",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "71475d6f07131179",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "umidade: ",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.umidade",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "46e5e60335fec6bb",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/ocupacao",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1410,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "5ee892e8c7fd3387",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "function 1",
+        "func": "let texto = msg.payload.texto_pessoas_na_sala;\n\nif (texto == \"Ocupacao maxima\") {\n    texto = `<font color=red>${msg.payload.texto_pessoas_na_sala}</font>`;\n} else if (texto == \"Ocupacao media\") {\n    texto = `<font color=yellow>${msg.payload.texto_pessoas_na_sala}</font>`;\n} else if (texto == \"Ocupacao ok\") {\n    texto = `<font color=blue>${msg.payload.texto_pessoas_na_sala}</font>`;\n} else if (texto == \"Ocupacdo vazia\") {\n    texto = `<font color=green>${msg.payload.texto_pessoas_na_sala}</font>`;\n}\n\n// Envia ambos os dados\nmsg.payload.texto_pessoas_na_sala = texto;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 180,
+        "wires": [
+            [
+                "13747459425ee499"
+            ]
+        ]
+    },
+    {
+        "id": "b3dda82f9b2bb312",
+        "type": "debug",
+        "z": "e8048db6c98f6ea6",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1380,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "94f3000d7a5445cb",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text livre",
+        "func": "msg.payload.evento  = `<font color=green>${msg.payload.evento}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 540,
+        "wires": [
+            [
+                "059f1eabe74cf85b"
+            ]
+        ]
+    },
+    {
+        "id": "b3128a610c07ddb8",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "função do valor max ",
+        "func": "let contador = flow.get(\"contadorPessoas\") || 0;\nlet aviso;\n\nlet max = msg.payload; // valor vindo do slider\nmsg.payload = { max }; // ajusta a estrutura\n\n// Garante que o max nunca seja menor que o contador atual\nif (max < contador) {\n  max = contador + 1;\n  aviso = '<font color=\"red\">Número escolhido para a ocupação<br>está menor que a ocupação atual</font>';\n}\n\n// Armazena o novo limite máximo no fluxo\nflow.set(\"max\", max);\n\n// Retorna o aviso no payload\nmsg.payload.aviso = aviso || \"OK\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 180,
+        "wires": [
+            [
+                "757f9ab366894e26",
+                "d2a04e25b18711a3"
+            ]
+        ]
+    },
+    {
+        "id": "9744c184e2c3bcf0",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "function 2",
+        "func": "let contador = flow.get(\"contadorPessoas\") || 0;\n\nlet t = Date.now();\n\nreturn {topic:\"temperatura\", payload:{tempo: t, contador: contador}}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 240,
+        "wires": [
+            [
+                "5791845f63e7911c"
+            ]
+        ]
+    },
+    {
+        "id": "79ac84e3c0f2c142",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "temperatura",
+        "func": "let temperatura = msg.payload.temperatura;\n\nlet t = Date.now();\n\nreturn {topic:\"temperatura\", payload:{tempo: t, temperatura: temperatura}}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 740,
+        "wires": [
+            [
+                "7c0d24593ffbd5a1"
+            ]
+        ]
+    },
+    {
+        "id": "c72f338fe212544d",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "umidade",
+        "func": "let umidade = msg.payload.umidade;\n\nlet t = Date.now();\n\nreturn {topic:\"umidade\", payload:{tempo: t, umidade: umidade}}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 860,
+        "wires": [
+            [
+                "621ccad5a07887d9"
+            ]
+        ]
+    },
+    {
+        "id": "e3e9fb17bfb61513",
+        "type": "mqtt in",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/quantidade/slider",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "11f33488da8b5f7f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 350,
+        "y": 240,
+        "wires": [
+            [
+                "b3128a610c07ddb8",
+                "757f9ab366894e26"
+            ]
+        ]
+    },
+    {
+        "id": "d2a04e25b18711a3",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/aviso",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 910,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "20b70d5db8ad6ab9",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/gauge",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1400,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "13747459425ee499",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/situacao_sala",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1600,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "5791845f63e7911c",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/chart/ocupacao_sala",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1640,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "7e4e31e7c6bec886",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/ocupacao_da_sala",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1430,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "059f1eabe74cf85b",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/deteccao",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1400,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "7c0d24593ffbd5a1",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/chart/temperatura",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 890,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "621ccad5a07887d9",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/chart/umidade",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 880,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "b44d0347358a6ce8",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/temperatura",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 630,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "23157d8c28a31779",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/umidade",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 620,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "d9cfc4022a9ea626",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/status/placa1",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1140,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "5a9d7a524fcd44d1",
+        "type": "mqtt out",
+        "z": "e8048db6c98f6ea6",
+        "name": "",
+        "topic": "placa1/status/placa2",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "11f33488da8b5f7f",
+        "x": 1140,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "11ea831c1eee49bb",
+        "type": "function",
+        "z": "e8048db6c98f6ea6",
+        "name": "text livre",
+        "func": "msg.payload.evento  = `<font color=red>${msg.payload.evento}</font>`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 600,
+        "wires": [
+            [
+                "059f1eabe74cf85b"
+            ]
+        ]
+    },
+    {
+        "id": "11f33488da8b5f7f",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "a12cdd5731ea4278acb775f21997bddd.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "730e86935e31e207",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "730e86935e31e207",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    }
+]
