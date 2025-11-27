@@ -20,16 +20,18 @@ String ordem[2] = { "", "" };
 unsigned long tempoInicial;
 const unsigned long TIMEOUT = 1500;
 
+String evento = "livre";
+
 // ========- Fim Variaveis -========
 
 // ============- pinos -============
 // Ultrassonico1
-#define TRIG1 19
-#define ECHO1 18
+#define TRIG1 4
+#define ECHO1 5
 
 // Ultrassonico2
-#define TRIG2 23
-#define ECHO2 22
+#define TRIG2 6
+#define ECHO2 7
 
 
 Ultrasonic sensor1(TRIG1, ECHO1);
@@ -84,8 +86,8 @@ void connectToBroker() {
   mqttClient.setServer(mqtt_server, mqtt_port);
 
   // ID único da placa
-  String userId = "ESP-PLACA1-";
-  userId += String(random(0xFFF), HEX);
+  String userId = "ESP-PLACA1";
+  //userId += String(random(0xFFF), HEX);
 
   Serial.println("\nConectando ao broker MQTT...");
 
@@ -95,7 +97,7 @@ void connectToBroker() {
     // Tenta conectar com LWT (Last Will and Testament)
     if (mqttClient.connect(
           userId.c_str(),
-          mqtt_user, 
+          mqtt_user,
           mqtt_pass,
           LWTTopic,
           LWTQoS,
@@ -146,11 +148,14 @@ void loop() {
   if (!mqttClient.connected()) connectToBroker();
   mqttClient.loop();
 
-  StaticJsonDocument<200> doc;
-  doc["evento"] = "livre";
-  String info;
-  serializeJson(doc, info);
-  mqttClient.publish(mqtt_topic, info.c_str());
+
+  if (evento == "livre") {
+    StaticJsonDocument<200> doc;
+    doc["evento"] = "livre";
+    String info;
+    serializeJson(doc, info);
+    mqttClient.publish(mqtt_topic, info.c_str());
+  }
 
   // leitura dos sensores
   float d1 = sensor1.read();
@@ -187,6 +192,13 @@ void loop() {
       Serial.print(limiarDinamico1);
       Serial.print(" / ");
       Serial.println(limiarDinamico2);
+
+      evento = "caminho bloqueado";
+      StaticJsonDocument<200> doc;
+      doc["evento"] = "caminho bloqueado";
+      String info;
+      serializeJson(doc, info);
+      mqttClient.publish(mqtt_topic, info.c_str());
     }
   } else {
     tempoObstrucao = 0;
@@ -197,6 +209,7 @@ void loop() {
       limiarDinamico1 = LIMIAR_BASE;
       limiarDinamico2 = LIMIAR_BASE;
       Serial.println("✅ Caminho liberado — limiar padrão restaurado");
+      evento = "livre";
     }
   }
 

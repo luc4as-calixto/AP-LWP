@@ -47,8 +47,8 @@ DHT dht(DHTPIN, DHTTYPE);
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
 
-#define I2C_SCK 6
-#define I2C_SDA 5
+#define I2C_SCK 5
+#define I2C_SDA 6
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
