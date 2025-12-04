@@ -59,7 +59,8 @@ O fluxo principal segue:
 **NCA → Orquestrador → UMAF & Dashboard**,
 garantindo monitoramento contínuo, lógica centralizada e visualização integrada.
 
-<img width="1536" height="1024" alt="Sem título" src="https://github.com/user-attachments/assets/3c7374e6-094f-4c9a-928a-d8f00cc4cb30" />
+<img width="1536" height="1024" alt="Sem título" src="https://github.com/user-attachments/assets/42f3e1dc-1e1d-4d42-9f94-c68aa97f3261" />
+
 
 ---
 ## Estrutura dos Tópicos MQTT e Payloads
